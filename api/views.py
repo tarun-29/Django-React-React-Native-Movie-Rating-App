@@ -5,11 +5,13 @@ from rest_framework import status
 from api.models import Movie, Rating
 from django.contrib.auth.models import User
 from api.serializers import MovieSearializer, RatingSerializer
+from rest_framework.authentication import TokenAuthentication
 
 # Create your views here.
 class MovieViewSet(ModelViewSet):
   queryset = Movie.objects.all()
   serializer_class = MovieSearializer
+  authentication_classes = (TokenAuthentication, )
 
   @action(detail=True, methods=['POST'])
   def rate_movie(self, request, pk=None):
@@ -17,9 +19,8 @@ class MovieViewSet(ModelViewSet):
     if 'stars' in request.data:
       movie = Movie.objects.get(id=pk)
       stars = request.data['stars']
-      # user = request.user
-      user = User.objects.get(id=1)
-      
+      user = request.user
+
       try: 
         rating = Rating.objects.get(user=user.id, movie=movie.id)
         rating.stars = stars
@@ -43,3 +44,4 @@ class MovieViewSet(ModelViewSet):
 class RatingViewSet(ModelViewSet):
   queryset = Rating.objects.all()
   serializer_class = RatingSerializer
+  authentication_classes = (TokenAuthentication, )
